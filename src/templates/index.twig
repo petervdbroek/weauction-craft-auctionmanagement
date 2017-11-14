@@ -1,0 +1,20 @@
+{% extends "_layouts/cp" %}
+{% set title = 'Auction Management' %}
+
+{% block content %}
+    <h2>Auction Management dashboard</h2>
+    <table class="shadow-box editable" style="width: 600px;">
+        <thead>
+        <tr>
+            <th class="header"># Events</th>
+            <th class="header"># Objects</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td style="text-align: left">{{ craft.auctionManagement.numEvents }}</td>
+            <td style="text-align: left">{{ craft.auctionManagement.numObjects }}</td>
+        </tr>
+        </tbody>
+    </table>
+{% endblock %}

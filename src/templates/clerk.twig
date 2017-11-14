@@ -1,0 +1,160 @@
+{% extends "_layouts/cp" %}
+{% if not craft.request.getQuery('event_id') %}
+    {% set auction = craft.entries.section('auctions').first() %}
+{% else %}
+    {% set auction = craft.entries.id(craft.request.getQuery('event_id')).first() %}
+{% endif %}
+
+{% set object = craft.auctionManagement.activeObject(auction.id) %}
+{% set title = 'Auction Management ' ~ auction.title %}
+
+{% block content %}
+    <link rel="stylesheet" href="/assets/plugins/bootstrap/css/bootstrap.min.css">
+    <style>
+        table.objects {
+            width: 100%;
+            border-spacing: 0;
+            margin-bottom: 0px;
+        }
+
+        table.objects thead, table.objects tbody, table.objects tr, table.objects th, table.objects td { display: block; }
+
+        table.objects thead tr {
+            /* fallback */
+            width: 97%;
+            /* minus scroll bar width */
+            width: -webkit-calc(100% - 16px);
+            width:    -moz-calc(100% - 16px);
+            width:         calc(100% - 16px);
+        }
+
+        table.objects tr:after {  /* clearing float */
+            content: ' ';
+            display: block;
+            visibility: hidden;
+            clear: both;
+        }
+
+        table.objects tbody {
+            height: 200px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+
+        table.objects tbody td, table.objects thead th {
+            float: left;
+        }
+
+        .btn.submit {
+            font-weight: normal;
+        }
+
+        .btn {
+            height: 28px;
+            font-size: 12px;
+        }
+
+        .btn:hover {
+            color: white;
+        }
+    </style>
+    <script src="{{ craft.config.get('bs_widget_base_url', 'auctionmanagement') }}/client.js"></script>
+
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">Clerk</div>
+            <div class="panel-body">
+                <div id="clerk-widget">
+                    No active object in bidserver<br /><br />
+                    <a href="/actions/auctionManagement/events/startFirstObject?event_id={{ auction.id }}"><span class="btn submit">Start first object</span></a>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-6 col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Messages</div>
+                    <div class="panel-body">
+                        <div class="messages" style="height: 100px; overflow-y: scroll; margin-bottom: 15px;">
+                            {% for message in auction.messages.type('message').order('id desc') %}
+                                <div class="col-sm-12">
+                                    <div class="col-sm-2">{{ message.dateCreated | date('H:i') }}</div>
+                                    <div class="col-sm-10">{{ message.message | nl2br }}</div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <form id="add-message-form" action="" class="form" method="post" accept-charset="UTF-8">
+                            {{ getCsrfInput() }}
+                            <input type="hidden" name="activeAuction" value="{{ object.object_id }}" id="activeAuctionId"/>
+                            <input type="hidden" name="event_id" value="{{ auction.id }}" id="event_id"/>
+                            <input type="hidden" name="action" value="/auctionManagement/events/addMessage">
+                            <select name="defaultMessage" class="form-control" id="defaultMessage">
+                                <option disabled="disabled" selected>Select default message</option>
+                                {% for entry in craft.entries.section('defaultMessages')  %}
+                                    <option value="{{ entry.id }}">{{ entry.title }}</option>
+                                {% endfor %}
+                            </select><br />
+                            {% set locales = craft.i18n.getSiteLocales() %}
+                            {% for locale in locales %}
+                                <textarea name="messages[{{ locale.id }}]" placeholder="{{ locale.name }}" id="messages_{{ locale.id }}" class="form-control" style="margin-bottom: 15px;"></textarea>
+                            {% endfor %}
+                            <input class="btn submit" type="submit" value="Add message">
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="panel panel-default">
+                    <div class="panel-heading">Objects</div>
+                    <div class="panel-body">
+                        {% if object %}
+                            {% set previousObject = craft.auctionManagement.previousObjects(auction.id, object.object_id, 1)|first %}
+                            {% if previousObject %}
+                                <a href="/actions/auctionManagement/objects/start?object_id={{ previousObject.object_id }}&event_id={{ auction.id }}">
+                                    <span class="btn submit"><span class="glyphicon glyphicon-chevron-left" aria-hidden="true"></span> {{ previousObject.title }}</span>
+                                </a>
+                            {% endif %}
+                            {% set nextObject = craft.auctionManagement.nextObjects(auction.id, object.object_id, 1)|first %}
+                            {% if nextObject %}
+                                <a href="/actions/auctionManagement/objects/start?object_id={{ nextObject.object_id }}&event_id={{ auction.id }}" style="float: right;">
+                                    <span class="btn submit">{{ nextObject.title }} <span class="glyphicon glyphicon-chevron-right" aria-hidden="true"></span></span>
+                                </a>
+                            {% endif %}
+                        {% endif %}
+                        <table class="objects table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 10%;">#</th>
+                                    <th style="width: 50%;">Object</th>
+                                    <th style="width: 39%;">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for object in craft.auctionManagement.objects(auction.id) %}
+                                    <tr>
+                                        <td style="width: 10%; text-align: left">{{ loop.index }}</td>
+                                        <td style="width: 50%; text-align: left">{{ object.title }}</td>
+                                        <td style="width: 39%;">
+                                            <a href="/actions/auctionManagement/objects/start?object_id={{ object.object_id }}&event_id={{ auction.id }}"><span class="btn">Open</span></a>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const ascendingHybridWidgetClient = AscendingHybridWidget.createClient({
+            "accessToken": "{{ craft.myauction.clerkWidgetToken() }}",
+            "apiEndpoint": "{{ craft.config.get('bs_asc_hy_api_base_url', 'auctionmanagement') }}",
+            "staticPath": "{{ craft.config.get('bs_widget_base_url', 'auctionmanagement') }}"
+        });
+        const clerkWidgetPromise = ascendingHybridWidgetClient.createClerkWidget({"objectId": "{{ object.event_id }}_{{ object.object_id }}"});
+        clerkWidgetPromise.then(function (clerkWidget) {
+            clerkWidget.mount(document.getElementById("clerk-widget"));
+        });
+    </script>
+{% endblock %}

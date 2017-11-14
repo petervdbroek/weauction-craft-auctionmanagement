@@ -1,0 +1,69 @@
+{% extends "_layouts/cp" %}
+{% set title = 'Auction Management - Streamer' %}
+
+{% block content %}
+    <script type="text/javascript">
+        window.csrfTokenName = "{{ craft.config.csrfTokenName|e('js') }}";
+        window.csrfTokenValue = "{{ craft.request.csrfToken|e('js') }}";
+    </script>
+
+    {% set streamType = craft.auctionManagement.settings.stream_type %}
+    <div class="container" style="min-height: 300px;">
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Streamer</h2>
+                <form method="post" action="" id="changeStreamer">
+                    {{ getCsrfInput() }}
+                    <input type="hidden" name="action" value="/auctionManagement/streaming/changeStreamer"/>
+                    <div class="select">
+                        <select id="stream_type" name="stream_type">
+                            <option value="flashphoner"{% if streamType == 'flashphoner' %} selected="selected"{% endif %}>
+                                Flashphoner
+                            </option>
+                            <option value="vsr_audio_streamer"{% if streamType == 'vsr_audio_streamer' %} selected="selected"{% endif %}>
+                                VSR Audio Streamer
+                            </option>
+                        </select>
+                    </div>
+                    {% if streamType != 'flashphoner' %}
+                        <input type="submit" class="btn submit" name="start" value="Start streaming" />
+                        <input type="submit" class="btn reset" name="stop" value="Stop streaming" />
+                    {% endif %}
+                </form>
+            </div>
+            {% if streamType != 'flashphoner' and craft.auctionManagement.settings.stream_name %}
+                <div class="row" style="margin-top: 20px;">
+                    <div class="col-md-12">
+                        <strong>Stream command:</strong><br />
+                        ffmpeg -re -f dshow -i audio="Microfoon (Realtek High Definition Audio)" -f f32le -ar 48000 -ac 2 "{{ craft.config.get('streaming_base_url', 'auctionmanagement') }}/broadcast/{{ craft.auctionManagement.settings.stream_name }}.raw?ar=48000&ac=2&spc=128"
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+        {% if streamType == 'flashphoner' %}
+            <div class="row" style="margin-top: 20px;" id="flashphonerSettings">
+                <input id="urlServer" type="hidden" value="{{ craft.auctionManagement.settings.ws_url }}"/>
+                <div class="col-md-12">
+                    <div class="select">
+                        <select id="audio_video">
+                            <option value="audio_video">Audio & Video</option>
+                            <option value="audio">Audio only</option>
+                        </select>
+                    </div>
+                    <input type="button" onclick="publishStream();return false" class="btn submit"
+                           value="Start streaming"/>
+                    <input type="button" onclick="unPublishStream();return false" class="btn reset"
+                           value="Stop streaming"/>
+                </div>
+            </div>
+            <div class="row" style="margin-top:20px;">
+                <div class="col-md-12">
+                    <div id="localVideo" class="fp-localVideo"></div>
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+
+{% endblock %}
+

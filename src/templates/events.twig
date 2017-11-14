@@ -1,0 +1,28 @@
+{% extends "_layouts/cp" %}
+{% set title = 'Auction Management' %}
+
+{% block content %}
+
+    <h2>Auctions</h2>
+    <table class="shadow-box editable" style="width: 900px;">
+        <thead>
+        <tr>
+            <th class="header">Auction</th>
+            <th class="header">Date created</th>
+            <th class="header">Action</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for entry in craft.entries.section(craft.auctionManagement.settings.channel_name)  %}
+            <tr>
+                <td style="text-align: left">{{ entry.title }}</td>
+                <td style="text-align: left">{{ entry.postDate | date('d-m-Y H:i:s') }}</td>
+                <td>
+                    <a href="/admin/auctionmanagement/objects?id={{ entry.id }}"><span class="btn submit">Open</span></a>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+{% endblock %}

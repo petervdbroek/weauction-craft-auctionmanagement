@@ -1,0 +1,47 @@
+{% extends "_layouts/cp" %}
+
+{% if not craft.request.getQuery('event_id') %}
+    {% set auction = craft.entries.section('auctions').first() %}
+{% else %}
+    {% set auction = craft.entries.id(craft.request.getQuery('event_id')).first() %}
+{% endif %}
+
+{% set object = craft.auctionManagement.activeObject(auction.id) %}
+{% set title = 'Auction Management ' ~ auction.title %}
+
+{% block content %}
+    <link rel="stylesheet" href="/assets/plugins/bootstrap/css/bootstrap.min.css">
+    <script src="{{ craft.config.get('bs_widget_base_url', 'auctionmanagement') }}/client.js"></script>
+
+    <input type="hidden" name="activeAuction" value="{{ object.object_id }}" id="activeAuctionId" />
+    <input type="hidden" name="event_id" value="{{ auction.id }}" id="event_id" />
+
+    <div class="container">
+        <div class="panel panel-default">
+            <div class="panel-heading">Auctioneer - {{ object.title }}</div>
+            <div class="panel-body">
+                <div id="bidder-widget"></div>
+            </div>
+        </div>
+    </div>
+
+    <div id="bidder-widget"></div>
+    <script>
+        if(AscendingHybridWidget.checkBrowser()) {
+            var ascendingHybridWidgetClient = AscendingHybridWidget.createClient({
+                "accessToken": "",
+                "apiEndpoint": "{{ craft.config.get('bs_asc_hy_api_base_url', 'auctionmanagement') }}",
+                "staticPath": "{{ craft.config.get('bs_widget_base_url', 'auctionmanagement') }}"
+            });
+
+            var lastBidWidgetPromise = ascendingHybridWidgetClient.createLastBidWidget({"objectId": "{{ object.event_id }}_{{ object.object_id }}"});
+            lastBidWidgetPromise.then(function(lastBidWidget) {
+                lastBidWidget.mount(document.getElementById("bidder-widget"));
+            });
+        }
+        else {
+            alert("Bad browser!");
+            window.location.href = "https://browsehappy.com/";
+        }
+    </script>
+{% endblock %}

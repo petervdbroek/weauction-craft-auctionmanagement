@@ -1,0 +1,44 @@
+{% import "_includes/forms" as forms %}
+
+{% if filesystemConfigExists %}
+    <div class="error"
+         style="padding: 1em; border: 1px solid rgb(218,90,71); background-color: rgba(218,90,71,0.1)">
+        <p>{{ "Heads up: these settings may be overridden by the contents of <code>`craft/app/config/myauction.php`</code>." | t | raw }}</p>
+    </div>
+{% endif %}
+
+{{ forms.textField({
+    label: "<strong>Flashphoner Streamer URL</strong>"|t,
+    id: 'ws_url',
+    name: 'ws_url',
+    placeholder : '',
+    instructions : "",
+    value: settings.ws_url
+}) }}
+
+{{ forms.textField({
+    label: "<strong>Flashphoner Stream name</strong>"|t,
+    id: 'stream_name',
+    name: 'stream_name',
+    placeholder : '',
+    instructions : "",
+    value: settings.stream_name
+}) }}
+
+{{ forms.textField({
+    label: "<strong>Events channel name</strong>"|t,
+    id: 'channel_name',
+    name: 'channel_name',
+    placeholder : '',
+    instructions : "",
+    value: settings.channel_name
+}) }}
+
+{{ forms.textField({
+    label: "<strong>Stream type</strong>"|t,
+    id: 'stream_type',
+    name: 'stream_type',
+    placeholder : '',
+    instructions : "",
+    value: settings.stream_type
+}) }}
