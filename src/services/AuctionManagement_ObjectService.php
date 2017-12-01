@@ -278,36 +278,39 @@ class AuctionManagement_ObjectService extends BaseApplicationComponent
         $object = $objectLog->object->{$objectEid};
         $users = $object->user;
 
-        $winningBid = $object->bid->{$object->lastBidId};
-
-        $csv = "ID;User ID;Displayname;Datetime;Cancelled;Denied;Amount\n";
-        // Save bidlog as CSV
-        foreach ($object->bid AS $bid) {
-            $datetime = date(
-                    "d-m-Y H:i:s",
-                    substr(
+        if (!isset($object->bid->{$object->lastBidId})) {
+            $objectRecord->setAttribute('amount', 0);
+        } else {
+            $winningBid = $object->bid->{$object->lastBidId};
+            $csv = "ID;User ID;Displayname;Datetime;Cancelled;Denied;Amount\n";
+            // Save bidlog as CSV
+            foreach ($object->bid AS $bid) {
+                $datetime = date(
+                        "d-m-Y H:i:s",
+                        substr(
+                            $bid->created,
+                            0,
+                            strlen($bid->created) - 3
+                        )
+                    ) . "." . substr(
                         $bid->created,
-                        0,
-                        strlen($bid->created) - 3
-                    )
-                ).".".substr(
-                    $bid->created,
-                    -3,
-                    strlen($bid->created) - 1
-                );
-            $username = (null === $bid->userId) ? 'in room' : $users->{$bid->userId}->name;
-            $csv .= $bid->id.";".
-                $bid->userId.";".
-                "\"".$username."\";".
-                $datetime.";".
-                var_export($bid->cancelled, true).";".
-                var_export($bid->denied, true).
-                ";".$bid->amount."\n";
-        }
+                        -3,
+                        strlen($bid->created) - 1
+                    );
+                $username = (null === $bid->userId) ? 'in room' : $users->{$bid->userId}->name;
+                $csv .= $bid->id . ";" .
+                    $bid->userId . ";" .
+                    "\"" . $username . "\";" .
+                    $datetime . ";" .
+                    var_export($bid->cancelled, true) . ";" .
+                    var_export($bid->denied, true) .
+                    ";" . $bid->amount . "\n";
+            }
 
-        $objectRecord->setAttribute('log', $csv);
-        $objectRecord->setAttribute('user_id', $winningBid->userId);
-        $objectRecord->setAttribute('amount', $winningBid->amount);
+            $objectRecord->setAttribute('log', $csv);
+            $objectRecord->setAttribute('user_id', $winningBid->userId);
+            $objectRecord->setAttribute('amount', $winningBid->amount);
+        }
         $objectRecord->setAttribute('status', 'completed');
         $objectRecord->save();
     }
@@ -441,7 +444,7 @@ class AuctionManagement_ObjectService extends BaseApplicationComponent
                     switch ($e->getResponse()->getStatusCode()) {
                         case '404': // Conflict
                             return true;
-                            break;
+                        break;
                     }
                 }
 
@@ -479,7 +482,7 @@ class AuctionManagement_ObjectService extends BaseApplicationComponent
                     switch ($e->getResponse()->getStatusCode()) {
                         case '404': // Conflict
                             return true;
-                            break;
+                        break;
                     }
                 }
 
