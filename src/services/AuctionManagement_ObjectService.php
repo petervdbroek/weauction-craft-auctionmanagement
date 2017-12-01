@@ -52,7 +52,7 @@ class AuctionManagement_ObjectService extends BaseApplicationComponent
                     "openingBid" => $object->openingBid,
                     "initialBidStep" => $object->initialBidstep,
                     "endCallbackUrl" => craft()->config->get('environmentVariables')['baseUrl']
-                        .'actions/auctionManagement/objects/callback?id='.$object_id,
+                        .'actions/auctionManagement/objects/callback?id='.$event_id.'_'.$object_id,
                 ]
             );
 
@@ -119,6 +119,7 @@ class AuctionManagement_ObjectService extends BaseApplicationComponent
             'profitom',
             'owner',
             'seller',
+            'teaser',
         ];
 
         $output = $object->getContent()->getAttributes($attributes);
@@ -137,6 +138,13 @@ class AuctionManagement_ObjectService extends BaseApplicationComponent
 
         if ($object->videos[0]) {
             $output['youtube'] = $object->videos[0]->youtubeEmbedUrl;
+            $output['mute_audio'] = ($object->videoWithAudio === '1') ? '0' : '1';
+            if ($output['mute_audio'] == '1') {
+                $explodedList = explode('/', $output['youtube']);
+                if (is_array($explodedList)) {
+                    $output['youtube_id'] = end($explodedList);
+                }
+            }
         }
 
         $output['event_id'] = $event_id;
@@ -554,7 +562,7 @@ class AuctionManagement_ObjectService extends BaseApplicationComponent
                 'limit' => 1
             ]
         );
-        if ($object[0]) {
+        if ($object && $object[0]) {
             return $object[0]['event_id'];
         }
         return null;

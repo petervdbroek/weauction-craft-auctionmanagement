@@ -146,15 +146,21 @@
             </div>
         </div>
     </div>
-    <script>
-        const ascendingHybridWidgetClient = AscendingHybridWidget.createClient({
-            "accessToken": "{{ craft.myauction.clerkWidgetToken() }}",
-            "apiEndpoint": "{{ craft.config.get('bs_asc_hy_api_base_url', 'auctionmanagement') }}",
-            "staticPath": "{{ craft.config.get('bs_widget_base_url', 'auctionmanagement') }}"
-        });
-        const clerkWidgetPromise = ascendingHybridWidgetClient.createClerkWidget({"objectId": "{{ object.event_id }}_{{ object.object_id }}"});
-        clerkWidgetPromise.then(function (clerkWidget) {
-            clerkWidget.mount(document.getElementById("clerk-widget"));
-        });
+    <script type="text/javascript">
+        if(AscendingHybridWidget.checkBrowser()) {
+            var ascendingHybridWidgetClient = AscendingHybridWidget.createClient({
+                "accessToken": "{{ craft.myauction.clerkWidgetToken() }}",
+                "apiEndpoint": "{{ craft.config.get('bs_asc_hy_api_base_url', 'auctionmanagement') }}",
+                "staticPath": "{{ craft.config.get('bs_widget_base_url', 'auctionmanagement') }}"
+            });
+            var clerkWidgetPromise = ascendingHybridWidgetClient.createClerkWidget({"objectId": "{{ object.event_id }}_{{ object.object_id }}"});
+            clerkWidgetPromise.then(function (clerkWidget) {
+                clerkWidget.mount(document.getElementById("clerk-widget"));
+            });
+        }
+        else {
+            alert("Bad browser!");
+            window.location.href = "https://browsehappy.com/";
+        }
     </script>
 {% endblock %}

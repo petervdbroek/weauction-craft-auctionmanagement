@@ -46,7 +46,7 @@ class AuctionManagement_ObjectsController extends BaseController
     public function actionCallback(): void
     {
         $params = $this->getActionParams();
-        if (isset($params['id']) && is_numeric($params['id'])) {
+        if (isset($params['id'])) {
             try {
                 if (craft()->auctionManagement_object->handleCallback($params['id'])) {
                     http_response_code(200);
