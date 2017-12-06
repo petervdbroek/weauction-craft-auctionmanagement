@@ -23,7 +23,7 @@ class AuctionManagementPlugin extends BasePlugin
      */
     public function getVersion()
     {
-        return '1.0.2';
+        return '1.0.3';
     }
 
     public function getSchemaVersion()
@@ -69,6 +69,7 @@ class AuctionManagementPlugin extends BasePlugin
     public function defineSettings(): array
     {
         return [
+            's3_base_url' => [AttributeType::String, 'default' => ''],
             'ws_url' => [AttributeType::String, 'default' => 'wss://streaming.vsrpartners.nl:8443'],
             'stream_name' => [AttributeType::String, 'default' => ''],
             'stream_started' => [AttributeType::String, 'default' => ''],

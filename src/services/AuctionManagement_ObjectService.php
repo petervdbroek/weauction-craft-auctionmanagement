@@ -391,8 +391,8 @@ class AuctionManagement_ObjectService extends BaseApplicationComponent
 
             $bcc = [
                 [
-                    'email' => 'info@emta-auctions.com',
-                    'name' => 'EMTA Auctions',
+                    'email' => craft()->systemSettings->getSetting('email', 'emailAddress'),
+                    'name' => 'Admin',
                 ],
                 [
                     'email' => 'info@vsrpartners.nl',

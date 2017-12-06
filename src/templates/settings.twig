@@ -8,6 +8,15 @@
 {% endif %}
 
 {{ forms.textField({
+    label: "<strong>S3 Base URL</strong>"|t,
+    id: 's3_base_url',
+    name: 's3_base_url',
+    placeholder : '',
+    instructions : "",
+    value: settings.s3_base_url
+}) }}
+
+{{ forms.textField({
     label: "<strong>Flashphoner Streamer URL</strong>"|t,
     id: 'ws_url',
     name: 'ws_url',

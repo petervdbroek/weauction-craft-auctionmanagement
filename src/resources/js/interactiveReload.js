@@ -6,7 +6,7 @@ function changeActiveAuction() {
     // Update auction, don't cache
     $.ajax({
         cache: false,
-        url: "https://s3-eu-west-1.amazonaws.com/emta-static.vsrpartners.nl/" + s3Partition + "/craft/activeObject_" + $('#event_id').val() + ".json",
+        url: $('#s3BaseUrl').val() + s3Partition + "/craft/activeObject_" + $('#event_id').val() + ".json",
         dataType: "json",
         success: function(data) {
             if (data.id && currentActive != data.id) {
